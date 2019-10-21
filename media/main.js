@@ -1,6 +1,6 @@
 (function() {
   const vscode = acquireVsCodeApi();
-  const oldState = vscode.getState();
+  //const oldState = vscode.getState();
 
   const mcuSelect = document.getElementById("mcu-select");
   mcuSelect.addEventListener("change", mcuSelectionHandler);
@@ -15,7 +15,7 @@
     vscode.setState({
       incfile: mcuSelect.options[mcuSelect.selectedIndex].value,
       mainfile: mainfileInput.value,
-      compilerFolder: compilerFolderInput.value
+      compilerfile: compilerFolderInput.value
     });
   }
 
@@ -35,7 +35,7 @@
 
   function compilerFolderInputHandler() {
     vscode.postMessage({
-      compilerFolder: compilerFolderInput.value
+      compilerfile: compilerFolderInput.value
     });
   }
 })();

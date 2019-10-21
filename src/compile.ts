@@ -8,41 +8,53 @@ export class CompileManager {
     compilerParams: CompilerParams,
     outputChannel: vscode.OutputChannel
   ) {
+    //check workspace folders exist
     if (vscode.workspace.workspaceFolders === undefined) {
-      vscode.window.showErrorMessage("No folders opened");
+      vscode.window.showErrorMessage("No workspace folders opened");
       return;
     }
 
-    const compilerPath = `"${compilerParams.avrasmfolder}/avrasm2"`;
+    //find main file
+    var files = await vscode.workspace.findFiles(
+      compilerParams.mainAsmFile,
+      "**/node_modules/**",
+      1
+    );
 
-    var compilerString = ` -fI -i "${path.join(
+    if (files.length === 0) {
+      vscode.window.showErrorMessage(
+        `${compilerParams.mainAsmFile} not found. Please set correct main asm file.`
+      );
+      return;
+    }
+
+    var mainFileUri = files[0];
+
+    //build compile command
+    var compilerString = `"${compilerParams.compilerFile}" -fI -i "${path.join(
       extensionPath,
       "inc",
-      compilerParams.incfile
+      compilerParams.includeFile
     )}"`;
 
     vscode.workspace.workspaceFolders.forEach(folder => {
       compilerString += ` -l "${folder.uri.fsPath}"`;
     });
 
-    compilerString += ` "${vscode.workspace.workspaceFolders[0].uri.fsPath}/main.asm"`;
+    compilerString += ` "${mainFileUri.fsPath}"`;
 
+    //
     outputChannel.clear();
     outputChannel.show();
 
+    //call compiler
     const cp = require("child_process");
-    cp.exec(
-      compilerPath + compilerString,
-      (err: string, stdout: string, stderr: string) => {
-        console.log("stdout: " + stdout);
-        outputChannel.append(stdout.toString());
-        console.log("stderr: " + stderr);
-        if (err) {
-          console.log("error: " + err);
-          outputChannel.append(err.toString());
-        }
+    cp.exec(compilerString, (err: string, stdout: string, stderr: string) => {
+      outputChannel.append(stdout.toString());
+      if (err) {
+        outputChannel.append(err.toString());
       }
-    );
+    });
 
     outputChannel.append("Done!");
   }

@@ -23,8 +23,8 @@ export class IncludeFile {
 }
 
 export class CompilerParams {
-  avrasmfolder =
-    "C:\\Program Files (x86)\\Atmel\\Studio\\7.0\\toolchain\\avr8\\avrassembler\\";
-  mainfile = "main.asm";
-  incfile = "m8adef.inc";
+  compilerFile =
+    "C:\\Program Files (x86)\\Atmel\\Studio\\7.0\\toolchain\\avr8\\avrassembler\\avrasm2.exe";
+  mainAsmFile = "main.asm";
+  includeFile = "m8adef.inc";
 }

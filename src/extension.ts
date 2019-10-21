@@ -3,42 +3,46 @@ import { OptionsPanel } from "./options";
 import { CompileManager } from "./compile";
 import { CompilerParams } from "./types";
 
+var outputChannel = vscode.window.createOutputChannel("avrasm2 output");
+
 export function activate(context: vscode.ExtensionContext) {
-  //output
-  var outputChannel = vscode.window.createOutputChannel("avrasm2 output");
-  var compilerParams = new CompilerParams();
+  var _compilerParams = new CompilerParams();
 
-  //command: open settings
+  //restore params handler
   context.subscriptions.push(
-    vscode.commands.registerCommand("avrasm.options", () => {
-      OptionsPanel.createOrShow(context.extensionPath, compilerParams);
-    })
-  );
-
-  context.subscriptions.push(
-    vscode.window.registerWebviewPanelSerializer("avrasm", {
+    vscode.window.registerWebviewPanelSerializer(OptionsPanel.panelIdentifier, {
       async deserializeWebviewPanel(
         webviewPanel: vscode.WebviewPanel,
         state: any
       ) {
-        console.log(`Got state: ${JSON.stringify(state)}`);
-
         if (state["incfile"]) {
-          compilerParams.incfile = state["incfile"];
+          _compilerParams.includeFile = state["incfile"];
         }
         if (state["mainfile"]) {
-          compilerParams.mainfile = state["mainfile"];
+          _compilerParams.mainAsmFile = state["mainfile"];
         }
-        if (state["compilerFolder"]) {
-          compilerParams.avrasmfolder = state["compilerFolder"];
+        if (state["compilerfile"]) {
+          _compilerParams.compilerFile = state["compilerfile"];
         }
 
         OptionsPanel.createOrShow(
           context.extensionPath,
-          compilerParams,
+          _compilerParams,
+          outputChannel,
           webviewPanel
         );
       }
+    })
+  );
+
+  //command: open settings
+  context.subscriptions.push(
+    vscode.commands.registerCommand("avrasm.options", () => {
+      OptionsPanel.createOrShow(
+        context.extensionPath,
+        _compilerParams,
+        outputChannel
+      );
     })
   );
 
@@ -47,11 +51,13 @@ export function activate(context: vscode.ExtensionContext) {
     vscode.commands.registerCommand("avrasm.compile", () =>
       CompileManager.compile(
         context.extensionPath,
-        compilerParams,
+        _compilerParams,
         outputChannel
       )
     )
   );
 }
 
-export function deactivate() {}
+export function deactivate() {
+  outputChannel.dispose();
+}
