@@ -4,8 +4,8 @@
 
 Add commands: AVRASM: configure and AVRASM: build
 
-\!\[Settings\]\(images/Feature_settings.png\)
-\!\[Compile\]\(images/Feature_compile.png\)
+![Settings](/images/Feature_settings.png)
+![Compile](/images/Feature_compile.png)
 
 Output format: Intel Hex
 
