@@ -1,10 +1,10 @@
 {
   "name": "avrasmcompiler",
-  "displayName": "AVRASM compiler",
-  "description": "AVRASM compile",
+  "displayName": "AVRASM compiler plugin",
+  "description": "Add AVR Assembler compilation command",
   "publisher": "smoluks",
   "repository": "https://github.com/smoluks/avrasm_compiler_plugin_vor_vscode",
-  "version": "0.0.1",
+  "version": "0.0.3",
   "engines": {
     "vscode": "^1.39.0"
   },
