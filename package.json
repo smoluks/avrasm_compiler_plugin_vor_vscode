@@ -4,7 +4,7 @@
   "description": "Add AVR Assembler compilation command",
   "publisher": "smoluks",
   "repository": "https://github.com/smoluks/avrasm_compiler_plugin_vor_vscode",
-  "version": "0.0.4",
+  "version": "0.0.7",
   "engines": {
     "vscode": "^1.39.0"
   },
@@ -12,10 +12,6 @@
     "Other"
   ],
   "icon": "images/icon.png",
-  "galleryBanner": {
-    "color": "#0167BC",
-    "theme": "light"
-  },
   "activationEvents": [
     "onCommand:avrasm.compile",
     "onCommand:avrasm.options",

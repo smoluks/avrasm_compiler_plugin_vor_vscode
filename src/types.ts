@@ -22,9 +22,43 @@ export class IncludeFile {
   }
 }
 
+export enum OutputFormatEnum {
+  AtmelStudio,
+  MotorolaHex,
+  IntelHex,
+  GenericHex,
+  NoOutput
+}
+
+export function GetOutputFormatDescription(outputFormat: OutputFormatEnum) {
+  switch (outputFormat) {
+    case OutputFormatEnum.AtmelStudio:
+      return "Debug info for simulation in AVR Studio";
+    case OutputFormatEnum.MotorolaHex:
+      return "Motorola HEX";
+    case OutputFormatEnum.IntelHex:
+      return "Intel HEX";
+    case OutputFormatEnum.GenericHex:
+      return "Generic HEX format";
+    case OutputFormatEnum.NoOutput:
+      return "No output file";
+  }
+}
+
 export class CompilerParams {
   compilerFile =
     "C:\\Program Files (x86)\\Atmel\\Studio\\7.0\\toolchain\\avr8\\avrassembler\\avrasm2.exe";
   mainAsmFile = "main.asm";
   includeFile = "m8adef.inc";
+  outputFormat = OutputFormatEnum.IntelHex;
+  outputFile: string = "";
+
+  resetToDefault() {
+    this.compilerFile =
+      "C:\\Program Files (x86)\\Atmel\\Studio\\7.0\\toolchain\\avr8\\avrassembler\\avrasm2.exe";
+    this.mainAsmFile = "main.asm";
+    this.includeFile = "m8adef.inc";
+    this.outputFormat = OutputFormatEnum.IntelHex;
+    this.outputFile = "";
+  }
 }

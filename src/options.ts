@@ -1,6 +1,11 @@
 import * as vscode from "vscode";
 import * as path from "path";
-import { IncludeFile, CompilerParams } from "./types";
+import {
+  IncludeFile,
+  CompilerParams,
+  OutputFormatEnum,
+  GetOutputFormatDescription
+} from "./types";
 import { TextDecoder } from "util";
 
 //pattern to find mcu name in inc file
@@ -48,6 +53,11 @@ export class OptionsPanel {
     //request from front handler
     this._panel.webview.onDidReceiveMessage(
       message => {
+        console.log("Message: " + JSON.stringify(message));
+
+        if (message["resettodefault"]) {
+          compilerParams.resetToDefault();
+        }
         if (message["incfile"]) {
           compilerParams.includeFile = message["incfile"];
         }
@@ -56,6 +66,16 @@ export class OptionsPanel {
         }
         if (message["compilerfile"]) {
           compilerParams.compilerFile = message["compilerfile"];
+        }
+        if (message["outputtype"]) {
+          compilerParams.outputFormat = message["outputtype"];
+        }
+        if (message["outputfile"]) {
+          compilerParams.outputFile = message["outputfile"];
+        }
+
+        if (message["resettodefault"]) {
+          this._updateWebViewHtml();
         }
       },
       null,
@@ -140,15 +160,13 @@ export class OptionsPanel {
     );
 
     // Use a nonce to whitelist which scripts can be run
-    const nonce = this.getNonce();
+    const jsnonce = this.getNonce();
 
     return `<!DOCTYPE html>
               <html lang="en">
               <head>
                   <meta charset="UTF-8">
-                  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src ${
-                    webview.cspSource
-                  } https:; script-src 'nonce-${nonce}'; style-src ${
+                  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'nonce-${jsnonce}'; style-src ${
       webview.cspSource
     };"/>
                   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -156,7 +174,7 @@ export class OptionsPanel {
                   <title>AVRASM: settings</title>
               </head>
               <body>
-              <table style="width:100%">
+              <table>
               <col width="10%">
               <col width="1">
               <tr>         
@@ -177,8 +195,21 @@ export class OptionsPanel {
                   this._compilerParams.compilerFile
                 }" type="text"></td>
               </tr>
+              <tr>
+                <td>Output format:</td>
+                <td><select id="output-format-select">
+                ${this.getOutputFormatHtmlselector()}             
+                </select></td>
+              </tr>
+              <tr>
+                <td>Output file:</td>
+                <td><input id="output-file-input" name="folder" value="${
+                  this._compilerParams.outputFile
+                }" type="text"></td>
+              </tr>
               </table>
-              <script nonce="${nonce}" src="${scriptUri}"></script>
+              <button id="reset-button" type="button">Reset to default</button>
+              <script nonce="${jsnonce}" src="${scriptUri}"></script>
               </body>
               </html>`;
   }
@@ -194,6 +225,25 @@ export class OptionsPanel {
         result += `<option value="${includeFile.filename}">${includeFile.mcu}</option>`;
       }
     }
+    return result;
+  }
+
+  //Generate HTML select element values
+  getOutputFormatHtmlselector(): string {
+    var result = "";
+
+    for (var i = 0; i < 5; i++) {
+      if (+this._compilerParams.outputFormat === i) {
+        result += `<option value="${i}" selected>${GetOutputFormatDescription(
+          i
+        )}</option>`;
+      } else {
+        result += `<option value="${i}">${GetOutputFormatDescription(
+          i
+        )}</option>`;
+      }
+    }
+
     return result;
   }
 
