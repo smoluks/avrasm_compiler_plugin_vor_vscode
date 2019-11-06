@@ -17,6 +17,9 @@
   const outputFileInput = document.getElementById("output-file-input");
   outputFileInput.addEventListener("change", outputFileInputHandler);
 
+  const saveOnBuildCheckbox = document.getElementById("save-on-build-checkbox");
+  saveOnBuildCheckbox.addEventListener("change", saveOnBuildCheckboxHandler);
+
   const resetButton = document.getElementById("reset-button");
   resetButton.addEventListener("click", resetToDefault);
 
@@ -27,7 +30,8 @@
       compilerfile: compilerFolderInput.value,
       outputtype:
         outputformatSelect.options[outputformatSelect.selectedIndex].value,
-      outputfile: outputFileInput.value
+      outputfile: outputFileInput.value,
+      saveonbuild: saveOnBuildCheckbox.checked
     });
   }
 
@@ -67,6 +71,14 @@
   function outputFileInputHandler() {
     vscode.postMessage({
       outputfile: outputFileInput.value
+    });
+
+    setState();
+  }
+
+  function saveOnBuildCheckboxHandler() {
+    vscode.postMessage({
+      saveonbuild: saveOnBuildCheckbox.checked
     });
 
     setState();

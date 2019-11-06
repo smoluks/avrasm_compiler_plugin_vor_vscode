@@ -31,6 +31,9 @@ export function activate(context: vscode.ExtensionContext) {
         if (state && state["outputfile"]) {
           _compilerParams.outputFile = state["outputfile"];
         }
+        if (state && (state["saveonbuild"] !== undefined)) {
+          _compilerParams.saveOnBuild = state["saveonbuild"];
+        }
 
         OptionsPanel.createOrShow(
           context.extensionPath,

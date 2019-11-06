@@ -52,6 +52,7 @@ export class CompilerParams {
   includeFile = "m8adef.inc";
   outputFormat = OutputFormatEnum.IntelHex;
   outputFile: string = "";
+  saveOnBuild = true;
 
   resetToDefault() {
     this.compilerFile =
@@ -60,5 +61,6 @@ export class CompilerParams {
     this.includeFile = "m8adef.inc";
     this.outputFormat = OutputFormatEnum.IntelHex;
     this.outputFile = "";
+    this.saveOnBuild = true;
   }
 }

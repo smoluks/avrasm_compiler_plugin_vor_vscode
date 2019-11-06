@@ -1,6 +1,7 @@
 import * as vscode from "vscode";
 import * as path from "path";
 import { CompilerParams, OutputFormatEnum } from "./types";
+import { workspace } from "vscode";
 
 export class CompileManager {
   public static async compile(
@@ -30,6 +31,11 @@ export class CompileManager {
     }
 
     var mainFileUri = files[0];
+
+    //
+    if (compilerParams.saveOnBuild) {
+      workspace.saveAll();
+    }
 
     //----build compile command----
     var compilerString = `"${compilerParams.compilerFile}"`;

@@ -3,7 +3,6 @@ import * as path from "path";
 import {
   IncludeFile,
   CompilerParams,
-  OutputFormatEnum,
   GetOutputFormatDescription
 } from "./types";
 import { TextDecoder } from "util";
@@ -72,6 +71,9 @@ export class OptionsPanel {
         }
         if (message["outputfile"]) {
           compilerParams.outputFile = message["outputfile"];
+        }
+        if (message["saveonbuild"] !== undefined) {
+          compilerParams.saveOnBuild = message["saveonbuild"];
         }
 
         if (message["resettodefault"]) {
@@ -206,6 +208,14 @@ export class OptionsPanel {
                 <td><input id="output-file-input" name="folder" value="${
                   this._compilerParams.outputFile
                 }" type="text"></td>
+              </tr>
+              <tr>
+                <td>Save all before build:</td>
+                <td>
+                <input type="checkbox" id="save-on-build-checkbox" name="saveonbuild" ${
+                  this._compilerParams.saveOnBuild ? "checked" : ""
+                }>
+                </td>
               </tr>
               </table>
               <button id="reset-button" type="button">Reset to default</button>
