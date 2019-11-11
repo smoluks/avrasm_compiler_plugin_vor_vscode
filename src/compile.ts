@@ -76,10 +76,21 @@ export class CompileManager {
       compilerString += ` -l "${folder.uri.fsPath}"`;
     });
 
+    //defines
+    if (compilerParams.defines && compilerParams.defines.length > 0) {
+      for (let def of compilerParams.defines.split("\n")) {
+        compilerString += ` -D "${def}"`;
+      }
+    }
+
+    //full statistic
+    if (compilerParams.fullStatistic) {
+      compilerString += ` -vs`;
+    }
+
     //main file
     compilerString += ` "${mainFileUri.fsPath}"`;
 
-    //---- ----
     //clean outputChannel
     outputChannel.clear();
     outputChannel.show();

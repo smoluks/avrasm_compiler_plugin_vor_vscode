@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.0.11] - 2019-11-11
+
+### Added
+
+- Full statistics and define options
+
 ## [0.0.9] - 2019-11-06
 
 ### Added

@@ -54,27 +54,7 @@ export class OptionsPanel {
       message => {
         console.log("Message: " + JSON.stringify(message));
 
-        if (message["resettodefault"]) {
-          compilerParams.resetToDefault();
-        }
-        if (message["incfile"]) {
-          compilerParams.includeFile = message["incfile"];
-        }
-        if (message["mainfile"]) {
-          compilerParams.mainAsmFile = message["mainfile"];
-        }
-        if (message["compilerfile"]) {
-          compilerParams.compilerFile = message["compilerfile"];
-        }
-        if (message["outputtype"]) {
-          compilerParams.outputFormat = message["outputtype"];
-        }
-        if (message["outputfile"]) {
-          compilerParams.outputFile = message["outputfile"];
-        }
-        if (message["saveonbuild"] !== undefined) {
-          compilerParams.saveOnBuild = message["saveonbuild"];
-        }
+        compilerParams.setParams(message);
 
         if (message["resettodefault"]) {
           this._updateWebViewHtml();
@@ -181,7 +161,7 @@ export class OptionsPanel {
               <col width="1">
               <tr>         
                 <td>Main file:</td>
-                <td><input id="mainfile-input" name="mainfile" value="${
+                <td><input id="mainfile-input" value="${
                   this._compilerParams.mainAsmFile
                 }" type="text"></td>
               </tr>
@@ -193,7 +173,7 @@ export class OptionsPanel {
               </tr>
               <tr>
                 <td>AVRASM binary:</td>
-                <td><input id="compiler-folder-input" name="folder" value="${
+                <td><input id="compiler-folder-input" value="${
                   this._compilerParams.compilerFile
                 }" type="text"></td>
               </tr>
@@ -205,16 +185,32 @@ export class OptionsPanel {
               </tr>
               <tr>
                 <td>Output file:</td>
-                <td><input id="output-file-input" name="folder" value="${
+                <td><input id="output-file-input" value="${
                   this._compilerParams.outputFile
                 }" type="text"></td>
               </tr>
               <tr>
                 <td>Save all before build:</td>
                 <td>
-                <input type="checkbox" id="save-on-build-checkbox" name="saveonbuild" ${
+                <input type="checkbox" id="save-on-build-checkbox" ${
                   this._compilerParams.saveOnBuild ? "checked" : ""
                 }>
+                </td>
+              </tr>
+              <tr>
+                <td>Print full statistics:</td>
+                <td>
+                <input type="checkbox" id="full-statistic-checkbox" ${
+                  this._compilerParams.fullStatistic ? "checked" : ""
+                }>
+                </td>
+              </tr>
+              <tr>
+                <td>Defines:</td>
+                <td>
+                <textarea id="defines-textarea" rows="4">${
+                  this._compilerParams.defines
+                }</textarea>
                 </td>
               </tr>
               </table>

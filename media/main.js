@@ -3,85 +3,49 @@
   //const oldState = vscode.getState();
 
   const mcuSelect = document.getElementById("mcu-select");
-  mcuSelect.addEventListener("change", mcuSelectionHandler);
+  mcuSelect.addEventListener("change", setState);
 
   const mainfileInput = document.getElementById("mainfile-input");
-  mainfileInput.addEventListener("change", mainfileInputHandler);
+  mainfileInput.addEventListener("change", setState);
 
   const compilerFolderInput = document.getElementById("compiler-folder-input");
-  compilerFolderInput.addEventListener("change", compilerFolderInputHandler);
+  compilerFolderInput.addEventListener("change", setState);
 
   const outputformatSelect = document.getElementById("output-format-select");
-  outputformatSelect.addEventListener("change", outputTypeSelectionHandler);
+  outputformatSelect.addEventListener("change", setState);
 
   const outputFileInput = document.getElementById("output-file-input");
-  outputFileInput.addEventListener("change", outputFileInputHandler);
+  outputFileInput.addEventListener("change", setState);
 
   const saveOnBuildCheckbox = document.getElementById("save-on-build-checkbox");
-  saveOnBuildCheckbox.addEventListener("change", saveOnBuildCheckboxHandler);
+  saveOnBuildCheckbox.addEventListener("change", setState);
+
+  const fullStatisticsCheckbox = document.getElementById(
+    "full-statistic-checkbox"
+  );
+  fullStatisticsCheckbox.addEventListener("change", setState);
+
+  const definesTextarea = document.getElementById("defines-textarea");
+  definesTextarea.addEventListener("change", setState);
 
   const resetButton = document.getElementById("reset-button");
   resetButton.addEventListener("click", resetToDefault);
 
   function setState() {
-    vscode.setState({
+    var state = {
       incfile: mcuSelect.options[mcuSelect.selectedIndex].value,
       mainfile: mainfileInput.value,
       compilerfile: compilerFolderInput.value,
       outputtype:
         outputformatSelect.options[outputformatSelect.selectedIndex].value,
       outputfile: outputFileInput.value,
-      saveonbuild: saveOnBuildCheckbox.checked
-    });
-  }
+      saveonbuild: saveOnBuildCheckbox.checked,
+      defines: definesTextarea.value,
+      fullstatistic: fullStatisticsCheckbox.checked
+    };
 
-  function mcuSelectionHandler() {
-    vscode.postMessage({
-      incfile: mcuSelect.options[mcuSelect.selectedIndex].value
-    });
-
-    setState();
-  }
-
-  function mainfileInputHandler() {
-    vscode.postMessage({
-      mainfile: mainfileInput.value
-    });
-
-    setState();
-  }
-
-  function compilerFolderInputHandler() {
-    vscode.postMessage({
-      compilerfile: compilerFolderInput.value
-    });
-
-    setState();
-  }
-
-  function outputTypeSelectionHandler() {
-    vscode.postMessage({
-      outputtype:
-        outputformatSelect.options[outputformatSelect.selectedIndex].value
-    });
-
-    setState();
-  }
-
-  function outputFileInputHandler() {
-    vscode.postMessage({
-      outputfile: outputFileInput.value
-    });
-
-    setState();
-  }
-
-  function saveOnBuildCheckboxHandler() {
-    vscode.postMessage({
-      saveonbuild: saveOnBuildCheckbox.checked
-    });
-
-    setState();
+    vscode.setState(state);
+    vscode.postMessage(state);
   }
 
   function resetToDefault() {

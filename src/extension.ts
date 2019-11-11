@@ -16,24 +16,8 @@ export function activate(context: vscode.ExtensionContext) {
         state: any
       ) {
         console.log("State: " + JSON.stringify(state));
-        if (state && state["incfile"]) {
-          _compilerParams.includeFile = state["incfile"];
-        }
-        if (state && state["mainfile"]) {
-          _compilerParams.mainAsmFile = state["mainfile"];
-        }
-        if (state && state["compilerfile"]) {
-          _compilerParams.compilerFile = state["compilerfile"];
-        }
-        if (state && state["outputtype"]) {
-          _compilerParams.outputFormat = state["outputtype"];
-        }
-        if (state && state["outputfile"]) {
-          _compilerParams.outputFile = state["outputfile"];
-        }
-        if (state && (state["saveonbuild"] !== undefined)) {
-          _compilerParams.saveOnBuild = state["saveonbuild"];
-        }
+
+        _compilerParams.setParams(state);
 
         OptionsPanel.createOrShow(
           context.extensionPath,
