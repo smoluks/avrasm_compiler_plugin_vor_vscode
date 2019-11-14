@@ -1,11 +1,8 @@
 import * as vscode from "vscode";
 import * as path from "path";
-import {
-  IncludeFile,
-  CompilerParams,
-  GetOutputFormatDescription
-} from "./types";
+import { Parameters, GetOutputFormatDescription } from "./types/parameters";
 import { TextDecoder } from "util";
+import { IncludeFile } from "./types/includeFile";
 
 //pattern to find mcu name in inc file
 const targetMcuRegex = /Target MCU.*/i;
@@ -16,7 +13,7 @@ export class OptionsPanel {
 
   private readonly _panel: vscode.WebviewPanel;
   private readonly _extensionPath: string;
-  private readonly _compilerParams: CompilerParams;
+  private readonly _compilerParams: Parameters;
   private readonly _outputChannel: vscode.OutputChannel;
   private _includeFiles: IncludeFile[] = [];
   private _disposables: vscode.Disposable[] = [];
@@ -25,7 +22,7 @@ export class OptionsPanel {
   private constructor(
     panel: vscode.WebviewPanel,
     extensionPath: string,
-    compilerParams: CompilerParams,
+    compilerParams: Parameters,
     outputChannel: vscode.OutputChannel
   ) {
     this._panel = panel;
@@ -85,7 +82,7 @@ export class OptionsPanel {
 
   public static createOrShow(
     extensionPath: string,
-    compilerParams: CompilerParams,
+    compilerParams: Parameters,
     outputChannel: vscode.OutputChannel,
     webviewpanel?: vscode.WebviewPanel
   ) {

@@ -15,6 +15,7 @@
   "activationEvents": [
     "onCommand:avrasm.compile",
     "onCommand:avrasm.options",
+    "onCommand:avrasm.flash",
     "onWebviewPanel:avrasm"
   ],
   "main": "./out/extension.js",
@@ -27,6 +28,10 @@
       {
         "command": "avrasm.options",
         "title": "AVRASM: Settings"
+      },
+      {
+        "command": "avrasm.flash",
+        "title": "AVRASM: Flash"
       }
     ]
   },

@@ -1,12 +1,12 @@
 import * as vscode from "vscode";
 import * as path from "path";
-import { CompilerParams, OutputFormatEnum } from "./types";
+import { Parameters, OutputFormatEnum } from "./types/parameters";
 import { workspace } from "vscode";
 
 export class CompileManager {
   public static async compile(
     extensionPath: string,
-    compilerParams: CompilerParams,
+    compilerParams: Parameters,
     outputChannel: vscode.OutputChannel
   ) {
     //----checks----

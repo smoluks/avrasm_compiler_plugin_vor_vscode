@@ -1,12 +1,13 @@
 import * as vscode from "vscode";
-import { OptionsPanel } from "./options";
-import { CompileManager } from "./compile";
-import { CompilerParams } from "./types";
+import { OptionsPanel } from "./optionsManager";
+import { CompileManager } from "./compilemanager";
+import { Parameters } from "./types/parameters";
+import { FlashManager } from "./flashManager";
 
 var outputChannel = vscode.window.createOutputChannel("avrasm2 output");
 
 export function activate(context: vscode.ExtensionContext) {
-  var _compilerParams = new CompilerParams();
+  var _params = new Parameters();
 
   //restore params handler
   context.subscriptions.push(
@@ -17,11 +18,11 @@ export function activate(context: vscode.ExtensionContext) {
       ) {
         console.log("State: " + JSON.stringify(state));
 
-        _compilerParams.setParams(state);
+        _params.setParams(state);
 
         OptionsPanel.createOrShow(
           context.extensionPath,
-          _compilerParams,
+          _params,
           outputChannel,
           webviewPanel
         );
@@ -32,22 +33,21 @@ export function activate(context: vscode.ExtensionContext) {
   //command: open settings
   context.subscriptions.push(
     vscode.commands.registerCommand("avrasm.options", () => {
-      OptionsPanel.createOrShow(
-        context.extensionPath,
-        _compilerParams,
-        outputChannel
-      );
+      OptionsPanel.createOrShow(context.extensionPath, _params, outputChannel);
     })
   );
 
   //command: compile
   context.subscriptions.push(
     vscode.commands.registerCommand("avrasm.compile", () =>
-      CompileManager.compile(
-        context.extensionPath,
-        _compilerParams,
-        outputChannel
-      )
+      CompileManager.compile(context.extensionPath, _params, outputChannel)
+    )
+  );
+
+  //command: flash
+  context.subscriptions.push(
+    vscode.commands.registerCommand("avrasm.flash", () =>
+      FlashManager.flash(context.extensionPath, _params, outputChannel)
     )
   );
 }
