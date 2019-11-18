@@ -1,5 +1,13 @@
 import * as vscode from "vscode";
 import { Parameters, LptExitState } from "./types/parameters";
+import { AvrDudeProgrammer } from "./types/avrdudeprogrammer";
+
+function getEnumKeyByEnumValue(enumValue: string) {
+  let keys = Object.keys(AvrDudeProgrammer).filter(
+    x => AvrDudeProgrammer[x as keyof typeof AvrDudeProgrammer] === enumValue
+  );
+  return keys.length > 0 ? keys[0] : null;
+}
 
 export class FlashManager {
   static async flash(
@@ -21,7 +29,11 @@ export class FlashManager {
     }
     var firmwareFile = files[0];
 
-    var command = `"${_params.avrdudeFile}" -p ${_params.avrdudeMcu} -c usbasp -U flash:w:${firmwareFile.fsPath}:i`;
+    var command = `"${_params.avrdudeFile}" -p ${
+      _params.avrdudeMcu
+    } -c ${getEnumKeyByEnumValue(_params.programmer)}  -U flash:w:${
+      firmwareFile.fsPath
+    }:i`;
 
     if (_params.uartBaudrate) {
       command += ` -b ${_params.uartBaudrate}`;
