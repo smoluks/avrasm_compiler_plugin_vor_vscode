@@ -1,58 +1,76 @@
 (function() {
   const vscode = acquireVsCodeApi();
-  //const oldState = vscode.getState();
+  const params = [
+    "compilerFile",
+    "mainAsmFile",
+    "includeFile",
+    "outputFormat",
+    "outputFile",
+    "saveOnBuild",
+    "defines",
+    "fullStatistic",
+    //
+    "avrdudeFile",
+    "avrdudeMcu",
+    "bitrate",
+    "uartBaudrate",
+    "programmer",
+    "chipErase",
+    "lptExitState",
+    "disableSignatureCheck",
+    "disableErase",
+    "disableVerify",
+    "delay",
+    "RCcalibration",
+    "port",
+    "extendedParams"
+  ];
 
-  const mcuSelect = document.getElementById("mcu-select");
-  mcuSelect.addEventListener("change", setState);
+  var readMethods = {};
 
-  const mainfileInput = document.getElementById("mainfile-input");
-  mainfileInput.addEventListener("change", setState);
+  params.forEach(param => {
+    const element = document.getElementById(param);
+    if (element == null) {
+      console.log(param + " not found");
+      return;
+    }
+    element.addEventListener("change", setState);
 
-  const compilerFolderInput = document.getElementById("compiler-folder-input");
-  compilerFolderInput.addEventListener("change", setState);
-
-  const outputformatSelect = document.getElementById("output-format-select");
-  outputformatSelect.addEventListener("change", setState);
-
-  const outputFileInput = document.getElementById("output-file-input");
-  outputFileInput.addEventListener("change", setState);
-
-  const saveOnBuildCheckbox = document.getElementById("save-on-build-checkbox");
-  saveOnBuildCheckbox.addEventListener("change", setState);
-
-  const fullStatisticsCheckbox = document.getElementById(
-    "full-statistic-checkbox"
-  );
-  fullStatisticsCheckbox.addEventListener("change", setState);
-
-  const definesTextarea = document.getElementById("defines-textarea");
-  definesTextarea.addEventListener("change", setState);
-
-  const resetButton = document.getElementById("reset-button");
-  resetButton.addEventListener("click", resetToDefault);
+    switch (element.type) {
+      case "text":
+        readMethods[param] = () => element.value;
+        break;
+      case "select-one":
+        readMethods[param] = () => element.options[element.selectedIndex].value;
+        break;
+      case "checkbox":
+        readMethods[param] = () => element.checked;
+        break;
+      case "textarea":
+        readMethods[param] = () => element.value;
+        break;
+      default:
+        console.log("type " + element.type + " not recognized");
+    }
+  });
 
   function setState() {
-    var state = {
-      incfile: mcuSelect.options[mcuSelect.selectedIndex].value,
-      mainfile: mainfileInput.value,
-      compilerfile: compilerFolderInput.value,
-      outputtype:
-        outputformatSelect.options[outputformatSelect.selectedIndex].value,
-      outputfile: outputFileInput.value,
-      saveonbuild: saveOnBuildCheckbox.checked,
-      defines: definesTextarea.value,
-      fullstatistic: fullStatisticsCheckbox.checked
-    };
+    var state = vscode.getState() || {};
 
-    vscode.setState(state);
+    params.forEach(param => {
+      if (readMethods[param]) state[param] = readMethods[param]();
+    });
+
     vscode.postMessage(state);
+    vscode.setState(state);    
   }
 
-  function resetToDefault() {
+  const resetButton = document.getElementById("reset-button");
+  resetButton.addEventListener("click", () => {
     vscode.postMessage({
       resettodefault: true
     });
 
     vscode.setState({});
-  }
+  });
 })();

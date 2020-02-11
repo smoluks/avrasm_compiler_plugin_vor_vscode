@@ -1,13 +1,13 @@
 import * as vscode from "vscode";
 import { OptionsPanel } from "./optionsManager";
 import { CompileManager } from "./compilemanager";
-import { Parameters } from "./types/parameters";
+import { ParametersManager } from "./types/parameters";
 import { FlashManager } from "./flashManager";
 
 var outputChannel = vscode.window.createOutputChannel("avrasm2 output");
 
 export function activate(context: vscode.ExtensionContext) {
-  var _params = new Parameters();
+  var _params = new ParametersManager(context.workspaceState);
 
   //restore params handler
   context.subscriptions.push(
@@ -18,7 +18,9 @@ export function activate(context: vscode.ExtensionContext) {
       ) {
         console.log("State: " + JSON.stringify(state));
 
-        _params.setParams(state);
+        if(state) {
+          _params.setParams(state);          
+        }
 
         OptionsPanel.createOrShow(
           context.extensionPath,

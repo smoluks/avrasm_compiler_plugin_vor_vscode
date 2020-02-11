@@ -1,12 +1,13 @@
 import * as vscode from "vscode";
 import * as path from "path";
-import { Parameters, OutputFormatEnum } from "./types/parameters";
+import { ParametersManager } from "./types/parameters";
 import { workspace } from "vscode";
+import { OutputFormatEnum } from "./types/outputFormat";
 
 export class CompileManager {
   public static async compile(
     extensionPath: string,
-    compilerParams: Parameters,
+    compilerParams: ParametersManager,
     outputChannel: vscode.OutputChannel
   ) {
     //----checks----
@@ -18,14 +19,14 @@ export class CompileManager {
 
     //find main file
     var files = await vscode.workspace.findFiles(
-      compilerParams.mainAsmFile,
+      compilerParams.getParam("mainAsmFile"),
       "**/node_modules/**",
       1
     );
 
     if (files.length === 0) {
       vscode.window.showErrorMessage(
-        `${compilerParams.mainAsmFile} not found. Please set correct main asm file.`
+        `${compilerParams.getParam("mainAsmFile")} not found. Please set correct main asm file.`
       );
       return;
     }
@@ -33,15 +34,15 @@ export class CompileManager {
     var mainFileUri = files[0];
 
     //
-    if (compilerParams.saveOnBuild) {
+    if (compilerParams.getParam("saveOnBuild")) {
       workspace.saveAll();
     }
 
     //----build compile command----
-    var compilerString = `"${compilerParams.compilerFile}"`;
+    var compilerString = `"${compilerParams.getParam("compilerFile")}"`;
 
     //output format
-    switch (+compilerParams.outputFormat) {
+    switch (+compilerParams.getParam("outputFormat")) {
       case OutputFormatEnum.AtmelStudio:
         compilerString += " -fO";
         break;
@@ -60,15 +61,15 @@ export class CompileManager {
     }
 
     //output file
-    if (compilerParams.outputFile && compilerParams.outputFile.length > 0) {
-      compilerString += ` -o "${compilerParams.outputFile}"`;
+    if (compilerParams.getParam("outputFile") && compilerParams.getParam("outputFile").length > 0) {
+      compilerString += ` -o "${compilerParams.getParam("outputFile")}"`;
     }
 
     //inc file
     compilerString += ` -i "${path.join(
       extensionPath,
       "inc",
-      compilerParams.includeFile
+      compilerParams.getParam("includeFile")
     )}"`;
 
     //workspace folders
@@ -77,14 +78,14 @@ export class CompileManager {
     });
 
     //defines
-    if (compilerParams.defines && compilerParams.defines.length > 0) {
-      for (let def of compilerParams.defines.split("\n")) {
+    if (compilerParams.getParam("defines") && compilerParams.getParam("defines").length > 0) {
+      for (let def of compilerParams.getParam("defines").split("\n")) {
         compilerString += ` -D "${def}"`;
       }
     }
 
     //full statistic
-    if (compilerParams.fullStatistic) {
+    if (compilerParams.getParam("fullStatistic")) {
       compilerString += ` -vs`;
     }
 
@@ -94,6 +95,7 @@ export class CompileManager {
     //clean outputChannel
     outputChannel.clear();
     outputChannel.show();
+    outputChannel.appendLine("Start compile...");
 
     //call compiler
     console.log(compilerString);

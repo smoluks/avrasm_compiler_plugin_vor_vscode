@@ -1,8 +1,11 @@
 import * as vscode from "vscode";
 import * as path from "path";
-import { Parameters, GetOutputFormatDescription } from "./types/parameters";
+import { ParametersManager } from "./types/parameters";
 import { TextDecoder } from "util";
 import { IncludeFile } from "./types/includeFile";
+import { AvrDudeMcu } from "./types/avrdudemcu";
+import { AvrDudeProgrammer } from "./types/avrdudeprogrammer";
+import { GetOutputFormatDescription } from "./types/outputFormat";
 
 //pattern to find mcu name in inc file
 const targetMcuRegex = /Target MCU.*/i;
@@ -13,7 +16,7 @@ export class OptionsPanel {
 
   private readonly _panel: vscode.WebviewPanel;
   private readonly _extensionPath: string;
-  private readonly _compilerParams: Parameters;
+  private readonly _compilerParams: ParametersManager;
   private readonly _outputChannel: vscode.OutputChannel;
   private _includeFiles: IncludeFile[] = [];
   private _disposables: vscode.Disposable[] = [];
@@ -22,7 +25,7 @@ export class OptionsPanel {
   private constructor(
     panel: vscode.WebviewPanel,
     extensionPath: string,
-    compilerParams: Parameters,
+    compilerParams: ParametersManager,
     outputChannel: vscode.OutputChannel
   ) {
     this._panel = panel;
@@ -51,7 +54,7 @@ export class OptionsPanel {
       message => {
         console.log("Message: " + JSON.stringify(message));
 
-        compilerParams.setParams(message);
+        this._compilerParams.setParams(message);
 
         if (message["resettodefault"]) {
           this._updateWebViewHtml();
@@ -82,7 +85,7 @@ export class OptionsPanel {
 
   public static createOrShow(
     extensionPath: string,
-    compilerParams: Parameters,
+    compilerParams: ParametersManager,
     outputChannel: vscode.OutputChannel,
     webviewpanel?: vscode.WebviewPanel
   ) {
@@ -106,7 +109,7 @@ export class OptionsPanel {
         {
           // Enable javascript in the webview
           enableScripts: true,
-
+          retainContextWhenHidden: true,
           // And restrict the webview to only loading content from our extension's `media` directory.
           localResourceRoots: [
             vscode.Uri.file(path.join(extensionPath, "media"))
@@ -153,68 +156,160 @@ export class OptionsPanel {
                   <title>AVRASM: settings</title>
               </head>
               <body>
+              Compiler options
               <table>
               <col width="10%">
-              <col width="1">
+              <col width="1">            
               <tr>         
                 <td>Main file:</td>
-                <td><input id="mainfile-input" value="${
-                  this._compilerParams.mainAsmFile
+                <td><input id="mainAsmFile" value="${
+                  this._compilerParams.getParam("mainAsmFile")
                 }" type="text"></td>
               </tr>
               <tr>
                 <td>MCU:</td>
-                <td><select id="mcu-select">
+                <td><select id="includeFile">
                 ${this.getIncludesHtmlselector()}             
                 </select></td>
               </tr>
               <tr>
                 <td>AVRASM binary:</td>
-                <td><input id="compiler-folder-input" value="${
-                  this._compilerParams.compilerFile
+                <td><input id="compilerFile" value="${
+                  this._compilerParams.getParam("compilerFile")
                 }" type="text"></td>
               </tr>
               <tr>
                 <td>Output format:</td>
-                <td><select id="output-format-select">
+                <td><select id="outputFormat">
                 ${this.getOutputFormatHtmlselector()}             
                 </select></td>
               </tr>
               <tr>
                 <td>Output file:</td>
-                <td><input id="output-file-input" value="${
-                  this._compilerParams.outputFile
+                <td><input id="outputFile" value="${
+                  this._compilerParams.getParam("outputFile")
                 }" type="text"></td>
               </tr>
               <tr>
                 <td>Save all before build:</td>
                 <td>
-                <input type="checkbox" id="save-on-build-checkbox" ${
-                  this._compilerParams.saveOnBuild ? "checked" : ""
+                <input type="checkbox" id="saveOnBuild" ${
+                  this._compilerParams.getParam("saveOnBuild") ? "checked" : ""
                 }>
                 </td>
               </tr>
               <tr>
                 <td>Print full statistics:</td>
                 <td>
-                <input type="checkbox" id="full-statistic-checkbox" ${
-                  this._compilerParams.fullStatistic ? "checked" : ""
+                <input type="checkbox" id="fullStatistic" ${
+                  this._compilerParams.getParam("fullStatistic") ? "checked" : ""
                 }>
                 </td>
               </tr>
               <tr>
                 <td>Defines:</td>
                 <td>
-                <textarea id="defines-textarea" rows="4">${
-                  this._compilerParams.defines
+                <textarea id="defines" rows="4">${
+                  this._compilerParams.getParam("defines")
                 }</textarea>
                 </td>
               </tr>
               </table>
+              <hr>
+              Programmer options
+              <table>
+              <col width="10%">
+              <col width="1">  
+              <tr>         
+                <td>AVRDUDE binary file:</td>
+                <td><input id="avrdudeFile" value="${
+                  this._compilerParams.getParam("avrdudeFile")
+                }" type="text"></td>
+              </tr>
+              <tr>
+                <td>MCU:</td>
+                <td><select id="avrdudeMcu">
+                ${this.getAvrDudeMCUHtmlselector()}             
+                </select></td>
+              </tr>
+              <tr>         
+                <td>Bitrate:</td>
+                <td><input id="bitrate" value="${
+                  this._compilerParams.getParam("bitrate")
+                }" type="text"></td>
+              </tr>
+              <tr>
+                <td>Programmer:</td>
+                <td><select id="programmer">
+                ${this.getProgrammerHtmlselector()}             
+                </select></td>
+              </tr>
+              <tr>
+                <td>Full erase chip before flash:</td>
+                <td>
+                <input type="checkbox" id="chipErase" ${
+                  this._compilerParams.getParam("chipErase") ? "checked" : ""
+                }>
+                </td>
+              </tr>
+              <tr>
+                <td>Disable signature check:</td>
+                <td>
+                <input type="checkbox" id="disableSignatureCheck" ${
+                  this._compilerParams.getParam("disableSignatureCheck") ? "checked" : ""
+                }>
+                </td>
+              </tr>
+              <tr>
+                <td>Disable auto erase:</td>
+                <td>
+                <input type="checkbox" id="disableErase" ${
+                  this._compilerParams.getParam("disableErase") ? "checked" : ""
+                }>
+                </td>
+              </tr>
+              <tr>
+                <td>Disable verify after flashing:</td>
+                <td>
+                <input type="checkbox" id="disableVerify" ${
+                  this._compilerParams.getParam("disableVerify") ? "checked" : ""
+                }>
+                </td>
+              </tr>
+              </table>
+              <hr>
               <button id="reset-button" type="button">Reset to default</button>
               <script nonce="${jsnonce}" src="${scriptUri}"></script>
               </body>
               </html>`;
+  }
+
+  getProgrammerHtmlselector(): string {
+    var result = "";
+
+    for (let item in AvrDudeProgrammer) {
+      if (this._compilerParams.getParam("programmer") === item) {
+        result += `<option value="${item}" selected>${item}</option>`;
+      } else {
+        result += `<option value="${item}">${item}</option>`;
+      }
+    }
+
+    return result;
+  }
+
+  getAvrDudeMCUHtmlselector(): string {
+    var result = "";
+
+    for (let item in AvrDudeMcu) {
+      if (this._compilerParams.getParam("avrdudeMcu") === item) {
+        result += `<option value="${item}" selected>${item}</option>`;
+      } else {
+        result += `<option value="${item}">${item}</option>`;
+      }
+    }
+
+    return result;
   }
 
   //Generate HTML select element values
@@ -222,7 +317,7 @@ export class OptionsPanel {
     var result = "";
 
     for (let includeFile of this._includeFiles) {
-      if (this._compilerParams.includeFile === includeFile.filename) {
+      if (this._compilerParams.getParam("includeFile") === includeFile.filename) {
         result += `<option value="${includeFile.filename}" selected>${includeFile.mcu}</option>`;
       } else {
         result += `<option value="${includeFile.filename}">${includeFile.mcu}</option>`;
@@ -236,7 +331,7 @@ export class OptionsPanel {
     var result = "";
 
     for (var i = 0; i < 5; i++) {
-      if (+this._compilerParams.outputFormat === i) {
+      if (+this._compilerParams.getParam("outputFormat") === i) {
         result += `<option value="${i}" selected>${GetOutputFormatDescription(
           i
         )}</option>`;

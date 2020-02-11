@@ -1,81 +1,82 @@
 import * as vscode from "vscode";
-import { Parameters, LptExitState } from "./types/parameters";
-import { AvrDudeProgrammer } from "./types/avrdudeprogrammer";
-
-function getEnumKeyByEnumValue(enumValue: string) {
-  let keys = Object.keys(AvrDudeProgrammer).filter(
-    x => AvrDudeProgrammer[x as keyof typeof AvrDudeProgrammer] === enumValue
-  );
-  return keys.length > 0 ? keys[0] : null;
-}
+import * as fs from 'fs'; 
+import { ParametersManager } from "./types/parameters";
+import { LptExitState } from "./types/lptExitState";
 
 export class FlashManager {
   static async flash(
     extensionPath: string,
-    _params: Parameters,
+    _params: ParametersManager,
     outputChannel: import("vscode").OutputChannel
   ) {
-    var files = await vscode.workspace.findFiles(
-      _params.mainAsmFile.replace(".asm", ".hex"),
-      "**/node_modules/**",
-      1
-    );
+    
+    var binaryFilePath = _params.getParam("outputFile") ?
+    _params.getParam("outputFile") : 
+    _params.getParam("mainAsmFile").replace(".asm", ".hex");
 
-    if (files.length === 0) {
-      vscode.window.showErrorMessage(
-        `${_params.mainAsmFile} not found. Please set correct main asm file.`
+    if (!fs.existsSync(binaryFilePath)) {
+
+      let file = binaryFilePath.replace(/^.*[\\\/]/, '');
+      var files = await vscode.workspace.findFiles(
+        file,
+        "**/node_modules/**",
+        1
       );
-      return;
-    }
-    var firmwareFile = files[0];
-
-    var command = `"${_params.avrdudeFile}" -p ${
-      _params.avrdudeMcu
-    } -c ${getEnumKeyByEnumValue(_params.programmer)}  -U flash:w:${
-      firmwareFile.fsPath
-    }:i`;
-
-    if (_params.uartBaudrate) {
-      command += ` -b ${_params.uartBaudrate}`;
+  
+      if (files.length === 0) {
+        vscode.window.showErrorMessage(
+          `${file} not found. Please set correct main asm file.`
+        );
+        return;
+      }
+      binaryFilePath = files[0].fsPath;
     }
 
-    if (_params.bitrate) {
-      command += ` -B ${_params.bitrate}`;
+    var command = `"${_params.getParam("avrdudeFile")}" -p ${_params.getParam("avrdudeMcu")} -c ${_params.getParam("programmer")}  -U flash:w:${binaryFilePath}:i`;
+
+    if (_params.getParam("uartBaudrate")) {
+      command += ` -b ${_params.getParam("uartBaudrate")}`;
     }
 
-    if (_params.disableErase) {
+    if (_params.getParam("bitrate")) {
+      command += ` -B ${_params.getParam("bitrate")}`;
+    }
+
+    if (_params.getParam("disableErase")) {
       command += " -D";
     }
 
-    if (_params.chipErase) {
+    if (_params.getParam("chipErase")) {
       command += " -e";
     }
 
-    if (_params.lptExitState !== LptExitState.default) {
-      command += ` -E ${_params.lptExitState}`;
+    if (_params.getParam("lptExitState") !== LptExitState.default) {
+      command += ` -E ${_params.getParam("lptExitState")}`;
     }
 
-    if (_params.disableSignatureCheck) {
+    if (_params.getParam("disableSignatureCheck")) {
       command += " -F";
     }
 
-    if (_params.delay) {
-      command += ` -i ${_params.delay}`;
+    if (_params.getParam("delay")) {
+      command += ` -i ${_params.getParam("delay")}`;
     }
 
-    if (_params.port) {
-      command += ` -P ${_params.port}`;
+    if (_params.getParam("port")) {
+      command += ` -P ${_params.getParam("port")}`;
     }
 
     //clean outputChannel
     outputChannel.clear();
     outputChannel.show();
+    outputChannel.appendLine("Start flashing...");
 
     //call compiler
     console.log(command);
     const cp = require("child_process");
     cp.exec(command, (err: string, stdout: string, stderr: string) => {
       outputChannel.append(stdout.toString());
+      outputChannel.append(stderr.toString());
       if (err) {
         outputChannel.append(err.toString());
       }

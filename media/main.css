@@ -1,6 +1,7 @@
 table,
 input:not([type="checkbox"]),
 select,
-textarea {
+textarea
+{
   width: 100%;
 }

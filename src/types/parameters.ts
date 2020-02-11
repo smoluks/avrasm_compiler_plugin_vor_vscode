@@ -1,43 +1,19 @@
+import * as vscode from "vscode";
 import { AvrDudeMcu } from "./avrdudemcu";
 import { AvrDudeProgrammer } from "./avrdudeprogrammer";
+import { OutputFormatEnum } from "./outputFormat";
+import { LptExitState } from "./lptExitState";
 
-export enum OutputFormatEnum {
-  AtmelStudio,
-  MotorolaHex,
-  IntelHex,
-  GenericHex,
-  NoOutput
+function getEnumKeyByEnumValue(enumValue: string) {
+  let keys = Object.keys(AvrDudeProgrammer).filter(
+    x => AvrDudeProgrammer[x as keyof typeof AvrDudeProgrammer] === enumValue
+  );
+  return keys.length > 0 ? keys[0] : null;
 }
 
-export function GetOutputFormatDescription(outputFormat: OutputFormatEnum) {
-  switch (outputFormat) {
-    case OutputFormatEnum.AtmelStudio:
-      return "Debug info for simulation in AVR Studio";
-    case OutputFormatEnum.MotorolaHex:
-      return "Motorola HEX";
-    case OutputFormatEnum.IntelHex:
-      return "Intel HEX";
-    case OutputFormatEnum.GenericHex:
-      return "Generic HEX format";
-    case OutputFormatEnum.NoOutput:
-      return "No output file";
-  }
-}
-
-export enum LptExitState {
-  default = "AVRDUDE leaves the parallel port in the same state at exit as it has been found at startup",
-  reset = "The ‘/RESET’ signal will be left activated at program exit",
-  noreset = "The ‘/RESET’ line will be deactivated at program exit",
-  vcc = "This option will leave those parallel port pins active (i. e. high) that can be used to supply ‘Vcc’ power to the MCU",
-  novcc = "This option will pull the ‘Vcc’ pins of the parallel port down at program exit",
-  d_high = "This option will leave the 8 data pins on the parallel port active (i. e. high)",
-  d_low = "This option will leave the 8 data pins on the parallel port inactive (i. e. low)"
-}
-
-export class Parameters {
-  //----------compile-----------
-  //save oll before build
-  saveOnBuild = true;
+class DefaultValues {
+  //save all before build
+  saveOnBuild = false;
 
   //compiler binary path
   compilerFile =
@@ -73,7 +49,7 @@ export class Parameters {
   //Override the RS-232 connection baud rate specified in the respective programmer’s entry of the configuration file.
   uartBaudrate = "";
 
-  //
+  //----------compile-----------
   programmer = AvrDudeProgrammer.usbasp;
 
   //Causes a chip erase to be executed. This will reset the contents of the flash ROM and EEPROM to the value ‘0xff’, and clear all lock bits
@@ -103,121 +79,48 @@ export class Parameters {
 
   //Pass extended param to the chosen programmer implementation as an extended parameter
   extendedParams = "";
+}
 
-  setParams(params: any) {
-    //----------compile-----------
+export class ParametersManager {
+
+  _defaultValues = new DefaultValues();
+  _workspaceState: vscode.Memento;
+
+  constructor(workspaceState: vscode.Memento){
+    this._workspaceState = workspaceState;
+  }
+
+  getParam(key: string) : any
+  {
+    let value = this._workspaceState.get(key);
+    if(value === undefined)
+    {
+      value = (this._defaultValues as any)[key];
+    }
+
+    return value;
+  }
+
+  setParam(key: string, value: any) : void
+  {
+    this._workspaceState.update(key, value);
+  }
+
+  setParams(params: any) {    
     if (params["resettodefault"]) {
       this.resetToDefault();
     }
-    if (params && params["incfile"]) {
-      this.avrdudeMcu = params["incfile"];
-    }
-    if (params && params["mainfile"]) {
-      this.mainAsmFile = params["mainfile"];
-    }
-    if (params && params["compilerfile"]) {
-      this.compilerFile = params["compilerfile"];
-    }
-    if (params && params["outputtype"]) {
-      this.outputFormat = params["outputtype"];
-    }
-    if (params && params["outputfile"]) {
-      this.outputFile = params["outputfile"];
-    }
-    if (params && params["saveonbuild"] !== undefined) {
-      this.saveOnBuild = params["saveonbuild"];
-    }
-    if (params && params["defines"]) {
-      this.defines = params["defines"];
-    }
-    if (params && params["fullstatistic"] !== undefined) {
-      this.fullStatistic = params["fullstatistic"];
-    }
 
-    //----------flash-----------
-    if (params && params["avrdudefile"]) {
-      this.avrdudeFile = params["avrdudefile"];
-    }
-
-    if (params && params["avrdudemcu"]) {
-      this.avrdudeMcu = params["avrdudemcu"];
-    }
-
-    if (params && params["bitrate"]) {
-      this.bitrate = params["bitrate"];
-    }
-
-    if (params && params["uartbaudrate"]) {
-      this.uartBaudrate = params["uartbaudrate"];
-    }
-
-    if (params && params["programmer"]) {
-      this.programmer = params["programmer"];
-    }
-
-    if (params && params["chiperase"]) {
-      this.chipErase = params["chiperase"];
-    }
-
-    if (params && params["lptexitstate"]) {
-      this.lptExitState = params["lptexitstate"];
-    }
-
-    if (params && params["disablesignaturecheck"]) {
-      this.disableSignatureCheck = params["disablesignaturecheck"];
-    }
-
-    if (params && params["disableerase"]) {
-      this.disableErase = params["disableerase"];
-    }
-
-    if (params && params["disableverify"]) {
-      this.disableVerify = params["disableverify"];
-    }
-
-    if (params && params["delay"]) {
-      this.delay = params["delay"];
-    }
-
-    if (params && params["rccalibration"]) {
-      this.RCcalibration = params["rccalibration"];
-    }
-
-    if (params && params["port"]) {
-      this.port = params["port"];
-    }
-
-    if (params && params["extendedparams"]) {
-      this.extendedParams = params["extendedparams"];
+    var properties = Object.getOwnPropertyNames(params);
+    for (let property of properties) {
+      this.setParam(property, params[property]);
     }
   }
 
   resetToDefault() {
-    //
-    this.compilerFile =
-      "C:\\Program Files (x86)\\Atmel\\Studio\\7.0\\toolchain\\avr8\\avrassembler\\avrasm2.exe";
-    this.mainAsmFile = "main.asm";
-    this.includeFile = "m8adef.inc";
-    this.outputFormat = OutputFormatEnum.IntelHex;
-    this.outputFile = "";
-    this.saveOnBuild = true;
-    this.defines = "DEBUG=1";
-    this.fullStatistic = false;
-    //
-    this.avrdudeFile =
-      "C:\\Program Files (x86)\\Arduino\\hardware\\tools\\avr\\bin\\avrdude.exe";
-    this.avrdudeMcu = AvrDudeMcu.ATmega8;
-    this.bitrate = "";
-    this.uartBaudrate = "";
-    this.programmer = AvrDudeProgrammer.usbasp;
-    this.chipErase = false;
-    this.lptExitState = LptExitState.default;
-    this.disableSignatureCheck = false;
-    this.disableErase = false;
-    this.disableVerify = false;
-    this.delay = 0;
-    this.RCcalibration = false;
-    this.port = "";
-    this.extendedParams = "";
+    var properties = Object.getOwnPropertyNames(this._defaultValues);
+    for (let property of properties) {
+      this.setParam(property, (this._defaultValues as any)[property]);
+    }
   }
 }
