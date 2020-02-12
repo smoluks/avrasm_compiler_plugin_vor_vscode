@@ -6,7 +6,7 @@
   "repository": "https://github.com/smoluks/avrasm_compiler_plugin_vor_vscode",
   "version": "0.0.13",
   "engines": {
-    "vscode": "^1.39.0"
+    "vscode": "^1.42.0"
   },
   "categories": [
     "Other"
