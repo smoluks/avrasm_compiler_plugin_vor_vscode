@@ -32,7 +32,7 @@ class DefaultValues {
   outputFile: string = "";
 
   //Define and undefine a preprocessor macro, respectively. Note that function-type preprocessor macros may not be defined from the command line. If -D is given no value, it is set to 1.
-  defines: string = "DEBUG=1";
+  defines: string = "DEBUG=T";
 
   //Print use statistics for register, instruction and memory on standard output. By default, only the memory statistic is printed. Note: The full statistics will always be printed to the list file, if one is specified.
   fullStatistic = false;
@@ -82,31 +82,27 @@ class DefaultValues {
 }
 
 export class ParametersManager {
-
   _defaultValues = new DefaultValues();
   _workspaceState: vscode.Memento;
 
-  constructor(workspaceState: vscode.Memento){
+  constructor(workspaceState: vscode.Memento) {
     this._workspaceState = workspaceState;
   }
 
-  getParam(key: string) : any
-  {
+  getParam(key: string): any {
     let value = this._workspaceState.get(key);
-    if(value === undefined)
-    {
+    if (value === undefined) {
       value = (this._defaultValues as any)[key];
     }
 
     return value;
   }
 
-  setParam(key: string, value: any) : void
-  {
+  setParam(key: string, value: any): void {
     this._workspaceState.update(key, value);
   }
 
-  setParams(params: any) {    
+  setParams(params: any) {
     if (params["resettodefault"]) {
       this.resetToDefault();
     }

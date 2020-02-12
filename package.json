@@ -1,15 +1,21 @@
 {
   "name": "avrasmcompiler",
   "displayName": "AVRASM compiler plugin",
-  "description": "Add AVR Assembler compilation command",
+  "description": "Add AVRASM and AVRDUDE call commands",
   "publisher": "smoluks",
   "repository": "https://github.com/smoluks/avrasm_compiler_plugin_vor_vscode",
-  "version": "0.0.11",
+  "version": "0.0.13",
   "engines": {
     "vscode": "^1.39.0"
   },
   "categories": [
     "Other"
+  ],
+  "keywords": [
+    "AVR",
+    "AVR Assembler",
+    "AVRASM",
+    "AVRDUDE"
   ],
   "icon": "images/icon.png",
   "activationEvents": [

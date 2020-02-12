@@ -1,5 +1,15 @@
 # Changelog
 
+## [0.0.13] - 2020-02-12
+
+### Added
+
+- Flash over AVRDUDE
+
+### Fixed
+
+- Parameters not saved on VSCODE restart if options tab not opened
+
 ## [0.0.11] - 2019-11-11
 
 ### Added
