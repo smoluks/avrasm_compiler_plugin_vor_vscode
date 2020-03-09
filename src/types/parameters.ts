@@ -39,7 +39,7 @@ class DefaultValues {
 
   //----------flash-----------
   avrdudeFile =
-    "C:\\Program Files (x86)\\Arduino\\hardware\\tools\\avr\\bin\\avrdude.exe";
+    "C:\\Program Files\\avrdudeprog33\\avrdude.exe";
 
   avrdudeMcu = AvrDudeMcu.ATmega8;
 

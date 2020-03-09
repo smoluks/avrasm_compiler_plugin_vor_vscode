@@ -11,7 +11,8 @@ Add commands: AVRASM: configure and AVRASM: build
 
 ## Requirements
 
-Atmel Studio 7 (https://www.microchip.com/mplab/avr-support/atmel-studio-7) or separate AVRASM2
+AVRASM (Can be taken from Atmel Studio 7 (https://www.microchip.com/mplab/avr-support/atmel-studio-7))
+AVRDUDE (Arduino version not working now, Windows binary can be taken from AVRDUDE_PROG(https://www.yourdevice.net/proekty/avrdude-prog))
 
 ## Notes
 

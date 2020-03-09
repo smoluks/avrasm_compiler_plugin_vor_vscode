@@ -1,5 +1,5 @@
 import * as vscode from "vscode";
-import * as fs from 'fs'; 
+import * as fs from 'fs';
 import { ParametersManager } from "./types/parameters";
 import { LptExitState } from "./types/lptExitState";
 
@@ -9,10 +9,10 @@ export class FlashManager {
     _params: ParametersManager,
     outputChannel: import("vscode").OutputChannel
   ) {
-    
+
     var binaryFilePath = _params.getParam("outputFile") ?
-    _params.getParam("outputFile") : 
-    _params.getParam("mainAsmFile").replace(".asm", ".hex");
+      _params.getParam("outputFile") :
+      _params.getParam("mainAsmFile").replace(".asm", ".hex");
 
     if (!fs.existsSync(binaryFilePath)) {
 
@@ -22,7 +22,7 @@ export class FlashManager {
         "**/node_modules/**",
         1
       );
-  
+
       if (files.length === 0) {
         vscode.window.showErrorMessage(
           `${file} not found. Please set correct main asm file.`
@@ -32,7 +32,7 @@ export class FlashManager {
       binaryFilePath = files[0].fsPath;
     }
 
-    var command = `"${_params.getParam("avrdudeFile")}" -p ${_params.getParam("avrdudeMcu")} -c ${_params.getParam("programmer")}  -U flash:w:${binaryFilePath}:i`;
+    var command = `"${_params.getParam("avrdudeFile")}" -p ${_params.getParam("avrdudeMcu")} -c ${_params.getParam("programmer")}  -U flash:w:"${binaryFilePath}":i`;
 
     if (_params.getParam("uartBaudrate")) {
       command += ` -b ${_params.getParam("uartBaudrate")}`;
