@@ -16,4 +16,4 @@ AVRDUDE (Arduino version not working now, Windows binary can be taken from AVRDU
 
 ## Notes
 
-When the 'Settings' page is being loaded, the plugin scans for every .inc file in the plugin directory (%USERPROFILE%\\.vscode\extensions\smoluks.avrasmcompiler-0.0.13\inc). You can delete unused .inc files to speed up the loading process, or add additional files if needed. You can take .inc from Atmel Studio (C:\Program Files (x86)\Atmel\Studio\7.0\packs\atmel\\[family]\\[version]\avrasm\inc).
+When the 'Settings' page is being loaded, the plugin scans for every .inc file in the plugin directory (%USERPROFILE%\\.vscode\extensions\smoluks.avrasmcompiler-0.0.14\inc). You can delete unused .inc files to speed up the loading process, or add additional files if needed. You can take .inc from Atmel Studio (C:\Program Files (x86)\Atmel\Studio\7.0\packs\atmel\\[family]\\[version]\avrasm\inc).
